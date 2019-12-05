@@ -19,26 +19,19 @@ check() {
 	if youtube-dl --get-filename --ignore-errors -f best "$url" 2>&1 1>/dev/null;
 	then
 
-		title=$(youtube-dl --get-filename --ignore-errors -f best "$url" 2>&1)
-		ext=$(youtube-dl --get-filename -o '%(ext)s' --ignore-errors -f best "$url" 2>&1)
-		while [ $? -ne 0 ]
-		do
-			title=$(youtube-dl --get-filename --ignore-errors -f best "$url" 2>&1)
-			ext=$(youtube-dl --get-filename -o '%(ext)s' --ignore-errors -f best "$url" 2>&1)
-		done
-		echo "$title"
-
 		# -- to handle filename staring with -(dash)
-		mkdir -- "$yid"
-		vid=$(youtube-dl -f best "$url" 2>&1 1>/dev/null)
-		while [ $? -ne 0 ] && [ ! -f "$title" ]
+		mkdir ./"$yid"
+		vid_name=$(youtube-dl --get-filename -o '%(id)s.%(ext)s' -f best "$url")
+		vid=$(youtube-dl -o '%(id)s.%(ext)s' -f best "$url" 2>&1 1>/dev/null)
+		while [ $? -ne 0 ] && [ ! -f "$vid_name" ]
 		do
-			vid=$(youtube-dl -f best "$url" 2>&1 1>/dev/null)
+			vid=$(youtube-dl -o '%(id)s.%(ext)s' -f best "$url" 2>&1 1>/dev/null)
+			vid_name=$(youtube-dl --get-filename -o '%(id)s.%(ext)s' -f best "$url")
 		done
 		start_time=$(format_time "$start")
 		end_time=$(format_time "$end")
-		ffmpeg -ss "$start_time" -to "$end_time" -i ./"$title" -vcodec copy -acodec copy ./"$yid"/"$yid"."$ext"
-		rm ./"$title"
+		ffmpeg -ss "$start_time" -to "$end_time" -i ./"$vid_name" -vcodec copy -acodec copy ./"$yid"/"$yid".mp4
+		rm ./"$vid_name"
 		echo "Downlad complete ${yid}"
 	else
 		echo "$yid"
