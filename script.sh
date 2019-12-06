@@ -13,33 +13,35 @@ check() {
 	IFS=',' read -r yid start end x y <<< "$1"
 
 	url="https://www.youtube.com/watch?v=${yid}"
+	start_time=$(format_time "$start")
+	end_time=$(format_time "$end")
 
-	# check if video exists
-	# er=$(youtube-dl --get-filename --ignore-errors -f best "$url" 2>&1 1>/dev/null)
-	if youtube-dl --get-filename --ignore-errors -f best "$url" 2>&1 1>/dev/null;
+	if [ ! -d "$yid" ]
 	then
+		# check if video exists
+		if youtube-dl --get-filename --ignore-errors -f best "$url" 2>&1 1>/dev/null;
+		then
 
-		# -- to handle filename staring with -(dash)
-		mkdir ./"$yid"
-		vid_name=$(youtube-dl --get-filename -o '%(id)s.%(ext)s' -f best "$url")
-		vid=$(youtube-dl -o '%(id)s.%(ext)s' -f best "$url" 2>&1 1>/dev/null)
-		while [ $? -ne 0 ] && [ ! -f "$vid_name" ]
-		do
-			vid=$(youtube-dl -o '%(id)s.%(ext)s' -f best "$url" 2>&1 1>/dev/null)
-			vid_name=$(youtube-dl --get-filename -o '%(id)s.%(ext)s' -f best "$url")
-		done
-		start_time=$(format_time "$start")
-		end_time=$(format_time "$end")
-		ffmpeg -ss "$start_time" -to "$end_time" -i ./"$vid_name" -vcodec copy -acodec copy ./"$yid"/"$yid".mp4
-		rm ./"$vid_name"
-		echo "Downlad complete ${yid}"
+			# -- to handle filename staring with -(dash)
+			if youtube-dl --retries infinite --socket-timeout 99999999 -o '%(id)s.%(ext)s' -f best "$url" 2>&1 1>/dev/null;
+			then
+				ext=$(youtube-dl --get-filename -o '%(ext)s' -f best "$url")
+				mkdir ./"$yid"
+				ffmpeg -hide_banner -loglevel panic -ss "$start_time" -to "$end_time" -i ./"$yid"."$ext" -vcodec copy -acodec copy ./"$yid"/"$yid".mp4
+				rm ./"$vid_name"
+				echo "Downlad complete ${yid}"
+			else
+				echo "Error ${yid}"
+			fi
+		else
+			echo "Cannot download ${yid}"
+		fi
 	else
-		echo "$yid"
-		echo "Can not download this file"
+		echo "Skipped, Already downloaded ${yid}"
 	fi
 	
 }
 
 export -f format_time check
 
-cat "$1" | parallel --jobs 0 check
+cat "$1" | parallel --jobs "$2" check
