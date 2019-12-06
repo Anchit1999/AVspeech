@@ -28,8 +28,10 @@ check() {
 			if youtube-dl --retries infinite --socket-timeout 99999999 -o '/scratch/cvit/rudra/AVSpeech/%(id)s.%(ext)s' -f best "$url" 2>&1 1>/dev/null;
 			then
 				ext=$(youtube-dl --get-filename -o '%(ext)s' -f best "$url")
-				#mkdir "/scratch/cvit/rudra/AVSpeech/${yid}"
-				ffmpeg -y -hide_banner -loglevel panic -ss "$start_time" -to "$end_time" -i "/scratch/cvit/rudra/AVSpeech/${yid}"."$ext" -vcodec copy -acodec copy "/scratch/cvit/rudra/AVSpeech/${yid}.mp4"
+				mkdir -p "/scratch/cvit/rudra/AVSpeech/${yid}"
+				ffmpeg -hide_banner -loglevel panic -ss "$start_time" -to "$end_time" -i "/scratch/cvit/rudra/AVSpeech/${yid}"."$ext" -vcodec copy -acodec copy \
+						"/scratch/cvit/rudra/AVSpeech/${yid}"/"$yid"_"$start_time"_"$end_time".mp4
+				rm "/scratch/cvit/rudra/AVSpeech/${yid}"."$ext"
 				echo "Download complete ${yid}"
 			else
 				echo "Error ${yid}"
