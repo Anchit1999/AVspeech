@@ -2,7 +2,7 @@
 
 Run this script to download AVspeech dataset
 ```
-bash script.sh <filename>
+bash script.sh <filename> <no of parallel jobs>
 ```
 
 # Install youtube-dl
