@@ -110,10 +110,10 @@ def preprocess():
 
 def main():
 	preprocess()
-	print(data)
-	# p = ThreadPoolExecutor(args.jobs)
-	# threads = [p.submit(yt_download,row) for row in data.items()]
-	# _ = [r.result() for r in tqdm(as_completed(threads), total=len(threads))]
+	# print(data)
+	p = ThreadPoolExecutor(args.jobs)
+	threads = [p.submit(yt_download,row) for row in data.items()]
+	_ = [r.result() for r in tqdm(as_completed(threads), total=len(threads))]
 
 if __name__ == '__main__':
 	main()
