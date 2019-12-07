@@ -38,14 +38,14 @@ downloading_start = collections.Counter()
 
 
 ydl_opts = {
-    'format': 'best',
-    'quiet': True,
-    'ignoreerrors': True,
+	'format': 'best',
+	'quiet': True,
+	'ignoreerrors': True,
 	'retries': 10000000,
 	'download_archive': os.path.join(args.output_dir,'archive.txt'),
-    'socket_timeout': 99999999,
-    'outtmpl': os.path.join(args.output_dir,'%(id)s.%(ext)s'),       
-    # 'progress_hooks': [my_hook],  
+	'socket_timeout': 99999999,
+	'outtmpl': os.path.join(args.output_dir,'%(id)s.%(ext)s'),
+	# 'progress_hooks': [my_hook],  
 }
 
 def format_time(t):
