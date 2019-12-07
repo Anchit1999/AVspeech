@@ -40,7 +40,6 @@ ydl_opts = {
 	'quiet': True,
 	'ignoreerrors': True,
 	'retries': 10000000,
-	'download_archive': os.path.join(args.output_dir,'archive.txt'),
 	'socket_timeout': 99999999,
 	'outtmpl': os.path.join(args.output_dir,'%(id)s.%(ext)s'),
 	# 'progress_hooks': [my_hook],  
@@ -70,7 +69,6 @@ def yt_download(d):
 		print("Start Downloading ",yid)
 		with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 			try:
-				downloading_start[yid] = True
 				info_dict = ydl.extract_info(url, download=True)
 				ext = "." + info_dict['ext']
 				try:
@@ -80,6 +78,7 @@ def yt_download(d):
 			except:
 				info_dict = None
 				ext = None
+		
 		if info_dict != None:
 			for start, end, x, y in d[1]:
 				st = format_time(float(start))
