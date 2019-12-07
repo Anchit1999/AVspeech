@@ -79,7 +79,7 @@ def yt_download(d):
 					print ("Creation of the directory %s failed" % path)
 			except:
 				info_dict = None
-				exts[yid] = None
+				ext = None
 		if info_dict != None:
 			for start, end, x, y in d[1]:
 				st = format_time(float(start))
