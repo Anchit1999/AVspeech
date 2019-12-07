@@ -103,16 +103,17 @@ def preprocess():
 			if yid in data:
 				data[yid].append(row[1:])
 			else:
-				data[yid] = []
+				data[yid] = [row[1:]]
 
 	if not path.isdir(args.output_dir):
 		os.mkdir(args.output_dir)
 
 def main():
 	preprocess()
-	p = ThreadPoolExecutor(args.jobs)
-	threads = [p.submit(yt_download,row) for row in data.items()]
-	_ = [r.result() for r in tqdm(as_completed(threads), total=len(threads))]
+	print(data)
+	# p = ThreadPoolExecutor(args.jobs)
+	# threads = [p.submit(yt_download,row) for row in data.items()]
+	# _ = [r.result() for r in tqdm(as_completed(threads), total=len(threads))]
 
 if __name__ == '__main__':
 	main()
