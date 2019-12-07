@@ -3,7 +3,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from os import listdir, path
 import numpy as np
 import collections
+
 import argparse, os, traceback
+os.system('ulimit -c 0')
+
 import csv
 import subprocess
 import sys
@@ -89,8 +92,12 @@ def yt_download(d):
 		st = format_time(float(start))
 		et = format_time(float(end))
 		ext = exts[yid]
-		command = 'ffmpeg -hide_banner -loglevel panic -ss {} -to {} -i {} -vcodec copy -acodec copy {}'.format(st, et, path_dir + ext, path.join(args.output_dir,yid,yid+"_"+start+"_"+end+ext))
+		command = 'ffmpeg -hide_banner -loglevel panic -ss {} -to {} -i {} -vcodec copy -acodec copy {}'.format(st,
+						 et, path_dir + ext, path.join(args.output_dir,yid,yid+"_"+start+"_"+end+ext))
+
 		subprocess.call(command, shell=True)
+	else:
+		print('Video {} was already downloaded'.format(yid))
 
 	count2[yid] += 1
 	if count2[yid] == count1[yid]:
@@ -102,12 +109,15 @@ def yt_download(d):
 def preprocess():
 	### Preprocessing
 	with open(args.file) as f:
-	    csv_data = csv.reader(f,delimiter=",")
+		csv_data = csv.reader(f,delimiter=",")
 
-	    for row in csv_data:
-	    	data.append(row)
-	    	yid = row[0]
-	    	count1[yid] += 1
+		for row in csv_data:
+			data.append(row)
+			yid = row[0]
+			count1[yid] += 1
+
+	if path.isdir(args.output_dir):
+		os.mkdir(args.output_dir)
 
 def main():
 	preprocess()
