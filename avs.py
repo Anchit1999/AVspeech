@@ -21,19 +21,6 @@ parser.add_argument("--output_dir", help="Folder where final videos will be down
 args = parser.parse_args()
 
 data = {}
-# def my_hook(d):
-# 	print(d)
-# 	if d['status'] == 'finished':
-# 		ffmpeg -hide_banner -loglevel panic -ss "$start_time" -to "$end_time" -i "/scratch/cvit/rudra/AVSpeech/${yid}"."$ext" -vcodec copy -acodec copy \
-# 						"/scratch/cvit/rudra/AVSpeech/${yid}"/"$yid"_"$start_time"_"$end_time".mp4
-# 		command = 'ffmpeg -i {} -i {} -strict -2 {}'.format(args.audio, path.join(args.results_dir, 'result.avi'), 
-# 														path.join(args.results_dir, 'result_voice.mp4'))
-# 		subprocess.call(command, shell=True)
-# 		y_id = d['filename'].split('.')[0]
-# 		count2[y_id] += 1
-
-
-
 
 ydl_opts = {
 	'format': 'best',
@@ -42,7 +29,7 @@ ydl_opts = {
 	'retries': 10000000,
 	'socket_timeout': 99999999,
 	'outtmpl': os.path.join(args.output_dir,'%(id)s.%(ext)s'),
-	# 'progress_hooks': [my_hook],  
+	'no-check-certificate' : True 
 }
 
 def format_time(t):
@@ -58,39 +45,31 @@ def yt_download(d):
 	url = 'https://www.youtube.com/watch?v='+yid
 	path_dir = path.join(args.output_dir, yid)
 	
-	# to check if video exists
+	print("Start Downloading ",yid)
 	with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 		try:
-			check = ydl.extract_info(url, download=False)
-		except:
-			check = None
-	
-	if check != None:
-		print("Start Downloading ",yid)
-		with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+			info_dict = ydl.extract_info(url, download=True)
+			ext = "." + info_dict['ext']
 			try:
-				info_dict = ydl.extract_info(url, download=True)
-				ext = "." + info_dict['ext']
-				try:
-					os.mkdir(path_dir)
-				except OSError:
-					print ("Creation of the directory %s failed" % path)
-			except:
-				info_dict = None
-				ext = None
-		
-		if info_dict != None:
-			for start, end, x, y in d[1]:
-				st = format_time(float(start))
-				et = format_time(float(end))
-				command = 'ffmpeg -hide_banner -loglevel panic -ss {} -to {} -i {} -vcodec copy -acodec copy {}'.format(st,
-								 et, path_dir + ext, path.join(args.output_dir,yid,yid+"_"+start+"_"+end+ext))
-
-				subprocess.call(command, shell=True)
-		try:
-			os.remove(path_dir + ext)
+				os.mkdir(path_dir)
+			except OSError:
+				print ("Creation of the directory %s failed" % path)
 		except:
-			print("File already deleted or was not downloaded")
+			info_dict = None
+			ext = None
+	
+	if info_dict != None:
+		for start, end, x, y in d[1]:
+			st = format_time(float(start))
+			et = format_time(float(end))
+			command = 'ffmpeg -hide_banner -loglevel panic -ss {} -to {} -i {} -vcodec copy -acodec copy {}'.format(st,
+							 et, path_dir + ext, path.join(args.output_dir,yid,yid+"_"+start+"_"+end+ext))
+
+			subprocess.call(command, shell=True)
+	try:
+		os.remove(path_dir + ext)
+	except:
+		print("File already deleted or was not downloaded")
 
 def preprocess():
 	### Preprocessing
@@ -109,7 +88,6 @@ def preprocess():
 
 def main():
 	preprocess()
-	# print(data)
 	p = ThreadPoolExecutor(args.jobs)
 	threads = [p.submit(yt_download,row) for row in data.items()]
 	_ = [r.result() for r in tqdm(as_completed(threads), total=len(threads))]
