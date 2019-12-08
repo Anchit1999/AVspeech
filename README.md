@@ -2,30 +2,10 @@
 
 Run this script to download AVspeech dataset
 ```
-bash script.sh <filename> <no of parallel jobs>
+python3 avs.py --jobs <number of parallel downloads> --file <csv file containing data> --output_dir <name of output directory>
 ```
 
-# Install youtube-dl
+# Requirements
 ```
-pip install youtube-dl
+pip install -r requirements.txt
 ```
-
-# To download parallel on ada
-
-```
-wget https://ftpmirror.gnu.org/parallel/parallel-20191022.tar.bz2
-wget https://ftpmirror.gnu.org/parallel/parallel-20191022.tar.bz2.sig
-gpg parallel-20191022.tar.bz2.sig
-bzip2 -dc parallel-20191022.tar.bz2 | tar xvf -
-cd parallel-20191022
-./configure --prefix=$HOME && make && make install
-```
-
-## To stop parallel command citation issue
-
-Run this command:
-
-```
-parallel --bibtex
-```
-and then type:- `will cite`
