@@ -42,8 +42,12 @@ def yt_download(d):
 
 	# youtube id, start time, x, y
 	yid = d[0]
-	url = 'https://www.youtube.com/watch?v='+yid
 	path_dir = path.join(args.output_dir, yid)
+
+	if path.isdir(path_dir) and len(os.listdir(path_dir)) > 0: return
+
+	url = 'https://www.youtube.com/watch?v='+yid
+	
 	
 	print("Start Downloading ",yid)
 	with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -51,7 +55,7 @@ def yt_download(d):
 			info_dict = ydl.extract_info(url, download=True)
 			ext = "." + info_dict['ext']
 			try:
-				os.mkdir(path_dir)
+				if not path.isdir(path_dir): os.mkdir(path_dir)
 			except OSError:
 				print ("Creation of the directory %s failed" % path)
 		except:
